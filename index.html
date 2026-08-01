@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI WhatsApp Clone</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .chat-container { width: 100%; max-width: 450px; height: 100vh; background: #efeae2; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .chat-header { background: #00a884; color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .chat-header img { width: 40px; height: 40px; border-radius: 50%; background: #ccc; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 75%; padding: 10px 14px; border-radius: 8px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .user-msg { background: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; }
+        .ai-msg { background: #ffffff; align-self: flex-start; border-top-left-radius: 0; }
+        .chat-input-box { background: #f0f2f5; padding: 10px 15px; display: flex; gap: 10px; align-items: center; }
+        .chat-input-box input { flex: 1; padding: 12px 15px; border: none; border-radius: 20px; outline: none; font-size: 14px; }
+        .chat-input-box button { background: #00a884; color: white; border: none; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <div style="font-size: 24px;">🤖</div>
+            <div>
+                <h3>AI Assistant</h3>
+                <span style="font-size: 12px; opacity: 0.8;">Online</span>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai-msg">Namaste! Main IND AI assistant hoon. Bahiye, kya madad karu?</div>
+        </div>
+
+        <!-- Input Box -->
+        <div class="chat-input-box">
+            <input type="text" id="userInput" placeholder="Message type karein...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const inputField = document.getElementById('userInput');
+            const messageText = inputField.value.trim();
+            const chatBox = document.getElementById('chatMessages');
+
+            if (!messageText) return;
+
+            // 1. User Message UI me add karein
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user-msg';
+            userDiv.innerText = messageText;
+            chatBox.appendChild(userDiv);
+            inputField.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                // 2. Backend / AI API ko request bhejein
+                const response = await fetch('http://localhost:3000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                const data = await response.json();
+
+                // 3. AI ka response UI me dikhayein
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'message ai-msg';
+                aiDiv.innerText = data.reply;
+                chatBox.appendChild(aiDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                console.error("Error:", error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message ai-msg';
+                errorDiv.innerText = "Server se connection nahi ho pa raha hai.";
+                chatBox.appendChild(errorDiv);
+            }
+        }
+    </script>
+</body>
+</html>
